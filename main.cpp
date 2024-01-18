@@ -14,8 +14,8 @@ using json = nlohmann::json;
 const string baseUrl = "https://paper-api.alpaca.markets";
 
 // API key for alpaca api, API secret key under the same account
-const string apiKey = "PKGUY9U18KB7D9BP0PIU";
-const string secretKey = "vK4fEOetkVch5T171ZYsJ6KiIEpl5Wub9PJaGj71";
+const string apiKey = "PKT1N9NFDAM0YDCDVT04";
+const string secretKey = "7mpx4rszsaikVBqdw1p8vVhHqj7VjsPc8lbiivDi";
 class InputChecker{
 public:
     // Set a function to check if the input is an integer, if it isn't then it throws an error and makes the user re-enter an input.
@@ -156,54 +156,54 @@ double getBitcoinPrice() {
 
 double getResField(string field){
 
-        // Set curl for the function createCurlHandle.
-        CURL* curl = createCurlHandle();
-        // An if statement that sends a message to the terminal that the curl returned false.
-        if (!curl) {
-            // returning false message
-            cout << "Failed to create a cURL handle." << endl;
-            return 0;
-        }
+    // Set curl for the function createCurlHandle.
+    CURL* curl = createCurlHandle();
+    // An if statement that sends a message to the terminal that the curl returned false.
+    if (!curl) {
+        // returning false message
+        cout << "Failed to create a cURL handle." << endl;
+        return 0;
+    }
 
-        // Set the specific endpoint for account information
-        const char* endpoint = "/v2/account";
-        curl_easy_setopt(curl, CURLOPT_URL, (baseUrl + endpoint).c_str());
+    // Set the specific endpoint for account information
+    const char* endpoint = "/v2/account";
+    curl_easy_setopt(curl, CURLOPT_URL, (baseUrl + endpoint).c_str());
 
-        // Create a variable to store the JSON response
-        string responseBody;
+    // Create a variable to store the JSON response
+    string responseBody;
 
-        // Set a callback function to capture the response
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseBody);
+    // Set a callback function to capture the response
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseBody);
 
-        // Perform the GET request
-        CURLcode res = curl_easy_perform(curl);
+    // Perform the GET request
+    CURLcode res = curl_easy_perform(curl);
 
-        if (res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        } else {
-            // Handle the API response
-            nlohmann::json jsonParsedResponse;
+    if (res != CURLE_OK) {
+        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+    } else {
+        // Handle the API response
+        nlohmann::json jsonParsedResponse;
 
-            // Parse the response data as JSON
-            if (!responseBody.empty()) {
-                jsonParsedResponse = nlohmann::json::parse(responseBody);
+        // Parse the response data as JSON
+        if (!responseBody.empty()) {
+            jsonParsedResponse = nlohmann::json::parse(responseBody);
 
-                    // if loop to see if the fields is shown in the json response, and if it is, it is true.
-                    if (jsonParsedResponse.find(field) != jsonParsedResponse.end() &&
-                        !jsonParsedResponse[field].is_null()) {
+            // if loop to see if the fields is shown in the json response, and if it is, it is true.
+            if (jsonParsedResponse.find(field) != jsonParsedResponse.end() &&
+                !jsonParsedResponse[field].is_null()) {
 
-                        // Extract the field value
-                        string parsedMessage = jsonParsedResponse[field];
+                // Extract the field value
+                string parsedMessage = jsonParsedResponse[field];
 
-                        cout << parsedMessage << endl;
+                cout << parsedMessage << endl;
 
-                    }
-
-            } else {
-                cout << "Empty response received." << endl;
             }
+
+        } else {
+            cout << "Empty response received." << endl;
         }
+    }
     curl_easy_cleanup(curl);
     return 0.0;
 }
@@ -343,11 +343,11 @@ void placeOrder(double amount, string buyOrSell) {
                 if (jsonParsedResponse.find(fields[i]) != jsonParsedResponse.end() &&
                     !jsonParsedResponse[fields[i]].is_null()) {
 
-                    // Extract the "buying_power" field
+                    // Extract the field
                     string parsedMessage = jsonParsedResponse[fields[i]];
 
 
-                    // Print only the "buying_power" value
+                    // Print only the value
                     cout << fields[i] << ": " << parsedMessage << endl;
                 }else {
                     cout << fields[i] << ": null or empty" << endl;
@@ -418,6 +418,7 @@ int main() {
 
     int choice = 0;
     while (choice != 4) {
+        cout << "*You are on Paper Trading, no real money is being used.*" << endl;
         cout << "Menu:" << endl;
         cout << "*---BTC trading at ~$" << getBitcoinPrice() << "---*" << endl;
 
@@ -431,142 +432,141 @@ int main() {
         InputChecker checkInt;
 
         checkInt.checkInputInt(choice);
-            switch (choice) {
-                case 1:
-                    cout << "You've selected to view your account.\n" << endl;
-                    try {
-                        cout << "Getting user's balance..." << endl;
-                        getAccountBalance();
+        switch (choice) {
+            case 1:
+                cout << "You've selected to view your account.\n" << endl;
+                try {
+                    cout << "Getting user's balance..." << endl;
+                    getAccountBalance();
 
-                        string backButton;
-                        cout << "Would you like to go back to the menu? (T/F)" << endl;
-                        cin >> backButton;
+                    string backButton;
+                    cout << "Would you like to go back to the menu? (T/F)" << endl;
+                    cin >> backButton;
 
-                        if(backButton == "T" or backButton == "t"){
-                            break;
-                        }else{
-                            return 0;
-                        }
-
-                    } catch (const exception& e) {
-                        cout << "An error occurred: " << e.what() << endl;
-                        string viewError;
-                        cout << "To continue or retry, press any key. To view the error message, press 'V': ";
-                        cin >> viewError;
-
-                        if (viewError == "V" || viewError == "v") {
-                            cout << e.what() << endl;
-                        } else {
-                            cout << "Bringing you back to the menu..." << endl;
-                        }
+                    if(backButton == "T" or backButton == "t"){
+                        break;
+                    }else{
+                        return 0;
                     }
-                    break;
-                case 2:
-                    cout << "You've selected to Buy Bitcoin..." << endl;
-                    cout << "The current Price of Bitcoin: " << getBitcoinPrice() << endl;
-                    cout << "Current buying power: " << getResField("buying_power") << endl;
 
-                    try {
-                        bool purchaseAmount = false;
-                        double amount;
+                } catch (const exception& e) {
+                    cout << "An error occurred: " << e.what() << endl;
+                    string viewError;
+                    cout << "To continue or retry, press any key. To view the error message, press 'V': ";
+                    cin >> viewError;
 
-                        while (!purchaseAmount) {
-                            cout << "How much would you like to purchase in dollars: ";
-                            cin >> amount;
-
-                            if (cin.fail()) {
-                                cout << "Invalid input. Please enter a valid numeric value." << endl;
-                                cin.clear();
-                                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                                continue;
-                            }
-
-                            double bitcoinPrice = getBitcoinPrice();
-                            if (bitcoinPrice <= 0) {
-                                cout << "Failed to retrieve Bitcoin price. Please try again later." << endl;
-                                break;
-                            }
-
-                            double convert = (amount / bitcoinPrice);
-
-                            cout << "\nPurchase Amount (in dollars): " << amount << endl;
-                            cout << "Equivalent Bitcoin amount: " << convert << endl;
-
-                            cout << "Is the above amount correct? 'YES' or 'NO'" << endl;
-                            string validate;
-                            cin >> validate;
-
-                            if (validate == "YES" || validate == "yes") {
-                                cout << "Sending Order..." << endl;
-                                placeOrder(convert, "buy");
-                                purchaseAmount = true;
-
-                            } else if (validate == "NO" || validate == "no") {
-                                cout << "User inputted 'NO', sending user back to the amount wanted..." << endl;
-                            } else {
-                                cout << "Invalid input. Please enter 'YES' or 'NO'." << endl;
-                            }
-                        }
-                    } catch (const exception& e) {
-                        cout << "An error occurred: " << e.what() << endl;
-                        string viewError;
-                        cout << "To continue or retry, press any key. To view the error message, press 'V': ";
-                        cin >> viewError;
-
-                        if (viewError == "V" || viewError == "v") {
-                            cout << e.what() << endl;
-                        } else {
-                            cout << "Bringing you back to the menu..." << endl;
-                        }
+                    if (viewError == "V" || viewError == "v") {
+                        cout << e.what() << endl;
+                    } else {
+                        cout << "Bringing you back to the menu..." << endl;
                     }
-                    break;
+                }
+                break;
+            case 2:
+                cout << "You've selected to Buy Bitcoin..." << endl;
+                cout << "The current Price of Bitcoin: " << getBitcoinPrice() << endl;
+                cout << "Current buying power: " << getResField("buying_power") << endl;
 
-                case 3:
-                    cout << "You've selected to Sell bitcoin..." << endl;
-                    try {
-                        double bitcoinPrice = getBitcoinPrice();
-                        double amount;
-                        getAccountBalance();
+                try {
+                    bool purchaseAmount = false;
+                    double amount;
 
-                        cout << "You have $" << getResField("position_market_value") << " invested in bitcoin." << endl;
-
-                        cout << "In dollars, how much would you like to sell? ";
+                    while (!purchaseAmount) {
+                        cout << "How much would you like to purchase in dollars: ";
                         cin >> amount;
 
-                        if (cin.fail() || amount <= 0) {
-                            throw invalid_argument("Invalid amount entered. Please enter a valid positive number.");
+                        if (cin.fail()) {
+                            cout << "Invalid input. Please enter a valid numeric value." << endl;
+                            cin.clear();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                            continue;
                         }
 
-                        // Calculate the equivalent Bitcoin to sell based on the amount entered
+                        double bitcoinPrice = getBitcoinPrice();
+                        if (bitcoinPrice <= 0) {
+                            cout << "Failed to retrieve Bitcoin price. Please try again later." << endl;
+                            break;
+                        }
+
                         double convert = (amount / bitcoinPrice);
 
-                        // Display the Bitcoin amount the user will sell
-                        cout << "You are selling $" << amount << " for approximately " << convert << " Bitcoin." << endl;
+                        cout << "\nPurchase Amount (in dollars): " << amount << endl;
+                        cout << "Equivalent Bitcoin amount: " << convert << endl;
 
-                        // Place the sell order
-                        placeOrder(convert, "sell");
-                    } catch (const exception &e) {
-                        cout << "An error occurred: " << e.what() << endl;
-                        string viewError;
-                        cout << "To continue or retry, press any key. To view the error message, press 'E': ";
-                        cin >> viewError;
+                        cout << "Is the above amount correct? 'YES' or 'NO'" << endl;
+                        string validate;
+                        cin >> validate;
 
-                        if (viewError == "E" || viewError == "e") {
-                            cout << e.what() << endl;
+                        if (validate == "YES" || validate == "yes") {
+                            cout << "Sending Order..." << endl;
+                            placeOrder(convert, "buy");
+                            purchaseAmount = true;
+
+                        } else if (validate == "NO" || validate == "no") {
+                            cout << "User inputted 'NO', sending user back to the amount wanted..." << endl;
                         } else {
-                            cout << "Bringing you back to the menu..." << endl;
+                            cout << "Invalid input. Please enter 'YES' or 'NO'." << endl;
                         }
                     }
-                    break;
+                } catch (const exception& e) {
+                    cout << "An error occurred: " << e.what() << endl;
+                    string viewError;
+                    cout << "To continue or retry, press any key. To view the error message, press 'V': ";
+                    cin >> viewError;
 
+                    if (viewError == "V" || viewError == "v") {
+                        cout << e.what() << endl;
+                    } else {
+                        cout << "Bringing you back to the menu..." << endl;
+                    }
+                }
+                break;
 
-                case 4:
-                    cout << "Exiting the program." << endl;
-                    return 0;
-                default:
-                    cout << "Invalid choice. Please select a valid option." << endl;
-                    continue;
+            case 3:
+                cout << "You've selected to Sell bitcoin..." << endl;
+                try {
+                    double bitcoinPrice = getBitcoinPrice();
+                    double amount;
+                    getAccountBalance();
 
-            }
+                    cout << "You have $" << getResField("position_market_value") << " invested in bitcoin." << endl;
+
+                    cout << "In dollars, how much would you like to sell? ";
+                    cin >> amount;
+
+                    if (cin.fail() || amount <= 0) {
+                        throw invalid_argument("Invalid amount entered. Please enter a valid positive number.");
+                    }
+
+                    // Calculate the equivalent Bitcoin to sell based on the amount entered
+                    double convert = (amount / bitcoinPrice);
+
+                    // Display the Bitcoin amount the user will sell
+                    cout << "You are selling $" << amount << " for approximately " << convert << " Bitcoin." << endl;
+
+                    // Place the sell order
+                    placeOrder(convert, "sell");
+                } catch (const exception &e) {
+                    cout << "An error occurred: " << e.what() << endl;
+                    string viewError;
+                    cout << "To continue or retry, press any key. To view the error message, press 'E': ";
+                    cin >> viewError;
+
+                    if (viewError == "E" || viewError == "e") {
+                        cout << e.what() << endl;
+                    } else {
+                        cout << "Bringing you back to the menu..." << endl;
+                    }
+                }
+                break;
+
+            case 4:
+                cout << "Exiting the program." << endl;
+                return 0;
+            default:
+                cout << "Invalid choice. Please select a valid option." << endl;
+                continue;
+
+        }
     }
 }
